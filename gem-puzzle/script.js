@@ -15,9 +15,6 @@ const createElements = () => {
     }
     container.append(cell);
     cell.classList.add("cell");
-    if (code != 0) {
-      cell.setAttribute("draggable", "true");
-    }
     container.classList.add("container");
     wrapper.append(container);
   });
@@ -48,13 +45,9 @@ const dragNDrop = () => {
       setTimeout(() => {
         this.classList.add("empty");
         emptyCell.remove();
+
       }, 0);
     });
-
-
-
-
-    
 
     container.addEventListener("dragend", function () {
       this.classList.remove("empty");
@@ -67,10 +60,71 @@ const dragNDrop = () => {
         currentArr.push(cell.dataset.code);
       });
 
-        
-     
-        console.log(emptyContainer.getBoundingClientRect());
-        console.log(container.getBoundingClientRect());
+      /*
+
+        if (container.getBoundingClientRect().x - 120 == emptyContainer.getBoundingClientRect().x || container.getBoundingClientRect().x + 120 == emptyContainer.getBoundingClientRect().x) {
+         
+         if (container.getBoundingClientRect().y + 120 != emptyContainer.getBoundingClientRect().y && container.getBoundingClientRect().y - 120 != emptyContainer.getBoundingClientRect().y) {
+           if (Math.abs(container.getBoundingClientRect().x - emptyContainer.getBoundingClientRect().x) == 120 && Math.abs(container.getBoundingClientRect().y - emptyContainer.getBoundingClientRect().y) == 0) {
+          console.log('hordraggable')
+           }
+         }
+        }
+
+        if (container.getBoundingClientRect().y - 120 == emptyContainer.getBoundingClientRect().y || container.getBoundingClientRect().y + 120 == emptyContainer.getBoundingClientRect().y) {
+         
+          if (container.getBoundingClientRect().x + 120 != emptyContainer.getBoundingClientRect().x && container.getBoundingClientRect().x - 120 != emptyContainer.getBoundingClientRect().x) {
+            if (Math.abs(container.getBoundingClientRect().y - emptyContainer.getBoundingClientRect().y) == 120 && Math.abs(container.getBoundingClientRect().x - emptyContainer.getBoundingClientRect().x) == 0) {
+           console.log('verdraggable')
+            }
+          }
+         }
+
+
+      if (
+        (container.getBoundingClientRect().x - 120 ==
+          emptyContainer.getBoundingClientRect().x ||
+        container.getBoundingClientRect().x + 120 ==
+          emptyContainer.getBoundingClientRect().x) &&
+          container.getBoundingClientRect().y + 120 !=
+            emptyContainer.getBoundingClientRect().y &&
+          container.getBoundingClientRect().y - 120 !=
+            emptyContainer.getBoundingClientRect().y &&
+          Math.abs(
+            container.getBoundingClientRect().x -
+              emptyContainer.getBoundingClientRect().x
+          ) == 120 &&
+          Math.abs(
+            container.getBoundingClientRect().y -
+              emptyContainer.getBoundingClientRect().y
+          ) == 0
+      ) {
+        console.log("hor");
+      } else if (
+        (container.getBoundingClientRect().y - 120 ==
+          emptyContainer.getBoundingClientRect().y ||
+        container.getBoundingClientRect().y + 120 ==
+          emptyContainer.getBoundingClientRect().y) &&
+          container.getBoundingClientRect().x + 120 !=
+            emptyContainer.getBoundingClientRect().x &&
+          container.getBoundingClientRect().x - 120 !=
+            emptyContainer.getBoundingClientRect().x &&
+          Math.abs(
+            container.getBoundingClientRect().y -
+              emptyContainer.getBoundingClientRect().y
+          ) == 120 &&
+          Math.abs(
+            container.getBoundingClientRect().x -
+              emptyContainer.getBoundingClientRect().x
+          ) == 0
+      ) {
+        console.log('ver')
+      } else {
+        console.log('no')
+      }
+
+*/
+
     });
 
     container.addEventListener("dragenter", function () {
@@ -116,9 +170,64 @@ const win = () => {
 };
 
 const getNearest = () => {
-  
-}
+ 
+    const emptyContainer = document.querySelector(".empty");
+    const containers = document.querySelectorAll(".container");
+
+    containers.forEach((container) => {
+      // поиск горизонтальных ячеек поблизости
+      if (
+        (container.getBoundingClientRect().x - 120 ==
+          emptyContainer.getBoundingClientRect().x ||
+        container.getBoundingClientRect().x + 120 ==
+          emptyContainer.getBoundingClientRect().x) &&
+          container.getBoundingClientRect().y + 120 !=
+            emptyContainer.getBoundingClientRect().y &&
+          container.getBoundingClientRect().y - 120 !=
+            emptyContainer.getBoundingClientRect().y &&
+          Math.abs(
+            container.getBoundingClientRect().x -
+              emptyContainer.getBoundingClientRect().x
+          ) == 120 &&
+          Math.abs(
+            container.getBoundingClientRect().y -
+              emptyContainer.getBoundingClientRect().y
+          ) == 0
+      ) {
+        container.querySelector('.cell').setAttribute('draggable', 'true');
+        container.classList.add('container-draggable');
+      } else if (
+        // поиск вертикальных ячеек поблизости
+        (container.getBoundingClientRect().y - 120 ==
+          emptyContainer.getBoundingClientRect().y ||
+        container.getBoundingClientRect().y + 120 ==
+          emptyContainer.getBoundingClientRect().y) &&
+          container.getBoundingClientRect().x + 120 !=
+            emptyContainer.getBoundingClientRect().x &&
+          container.getBoundingClientRect().x - 120 !=
+            emptyContainer.getBoundingClientRect().x &&
+          Math.abs(
+            container.getBoundingClientRect().y -
+              emptyContainer.getBoundingClientRect().y
+          ) == 120 &&
+          Math.abs(
+            container.getBoundingClientRect().x -
+              emptyContainer.getBoundingClientRect().x
+          ) == 0
+      ) {
+        container.querySelector('.cell').setAttribute('draggable', 'true');
+        container.classList.add('container-draggable');
+      } else {
+        container.querySelector('.cell').setAttribute('draggable', 'false');
+        container.classList.remove('container-draggable');
+      }    
+      
+    });
+
+};
 
 createElements();
 dragNDrop();
 win();
+window.addEventListener('load', getNearest)
+window.addEventListener('dragend', getNearest)
