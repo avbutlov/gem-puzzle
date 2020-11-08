@@ -1,0 +1,67 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: #fffdd0;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+}
+
+.container {
+    border: 5px dashed black;
+    width: 110px;
+    height: 110px;
+    margin: 5px;
+    background-color: rgb(255, 104, 78);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.empty {
+    background-color: #fffdd0;
+}
+
+[data-code='0'] {
+    opacity: 0;
+}
+
+[draggable="true"] {
+    cursor: grab;
+}
+
+.hovered {
+    background: rgb(18, 107, 18);
+}
+
+.hidden {
+    display: none;
+}
+
+.dragging {
+    opacity: 1;
+}
