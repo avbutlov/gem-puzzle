@@ -60,6 +60,7 @@ const dragNDrop = () => {
                 currentArr.push(cell.dataset.code);
             });
 
+<<<<<<< HEAD
             /*
 
         if (container.getBoundingClientRect().x - 120 == emptyContainer.getBoundingClientRect().x || container.getBoundingClientRect().x + 120 == emptyContainer.getBoundingClientRect().x) {
@@ -124,6 +125,8 @@ const dragNDrop = () => {
       }
 
 */
+=======
+>>>>>>> 38e2e7a74a44df8f8ff24273b92d02a5ee60fab8
 
         });
 
