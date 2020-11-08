@@ -62,7 +62,7 @@ body {
 }
 
 .hovered {
-    background: red;
+    background: rgb(18, 107, 18);
 }
 
 .hidden {
