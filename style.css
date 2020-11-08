@@ -1,0 +1,67 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.wrapper {
+    width: 40%;
+    min-width: 500px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.container {
+    border: 1px solid black;
+    width: 110px;
+    height: 110px;
+    margin: 5px;
+    background-color: tomato;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.empty {
+    background-color: teal;
+}
+
+[data-code='0'] {
+    opacity: 0;
+}
+
+[draggable="true"] {
+    cursor: grab;
+}
+
+.hovered {
+    background: rgba(212, 183, 13, 0.5);
+}
+
+.hidden {
+    display: none;
+}
+
+.dragging {
+    opacity: 1;
+}
