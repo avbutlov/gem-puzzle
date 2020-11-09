@@ -29,7 +29,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: .3s;
+    transition: .4s;
 }
 
 .cell {
@@ -41,7 +41,7 @@ body {
     text-align: center;
     font-size: 2rem;
     background-color: rgb(255, 104, 78);
-    transition: .3s;
+    transition: .2s;
 }
 
 .empty {
