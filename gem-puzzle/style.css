@@ -13,8 +13,19 @@ body {
     width: 100vw;
     height: 100vh;
     background-color: #fffdd0;
+    font-family: Georgia;
     font-size: 2rem;
-font-family: Georgia;
+}
+
+.start-screen {
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+}
+
+.new-game,
+.load-game {
+    cursor: pointer;
 }
 
 .game-info {
@@ -23,16 +34,11 @@ font-family: Georgia;
     align-items: center;
     height: 100px;
     user-select: none;
-
 }
 
-.timer {
+.timer {}
 
-}
-
-.counter {
-
-}
+.counter {}
 
 .puzzle-board {
     display: grid;
@@ -60,6 +66,18 @@ font-family: Georgia;
     text-align: center;
     background-color: rgb(255, 104, 78);
     transition: .2s;
+}
+
+.control-panel {
+    display: flex;
+    height: 100px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.save,
+.reload {
+    cursor: pointer;
 }
 
 .empty {
