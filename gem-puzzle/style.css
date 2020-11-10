@@ -13,9 +13,28 @@ body {
     width: 100vw;
     height: 100vh;
     background-color: #fffdd0;
+    font-size: 2rem;
+font-family: Georgia;
 }
 
-.wrapper {
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    user-select: none;
+
+}
+
+.timer {
+
+}
+
+.counter {
+
+}
+
+.puzzle-board {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
@@ -29,7 +48,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: .4s;
+    transition: .2s;
 }
 
 .cell {
@@ -39,7 +58,6 @@ body {
     width: 100%;
     height: 100%;
     text-align: center;
-    font-size: 2rem;
     background-color: rgb(255, 104, 78);
     transition: .2s;
 }
