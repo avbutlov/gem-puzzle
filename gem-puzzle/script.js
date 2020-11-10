@@ -1,10 +1,19 @@
 const createElements = () => {
   const dataCodes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
   const dataCodesShuffled = dataCodes.sort(() => Math.random() - 0.5);
+  let timer = document.createElement("div");
+  let counter = document.createElement("div");
+  let gameInfo = document.createElement("div");
+  let puzzleBoard = document.createElement("div");
   let wrapper = document.createElement("div");
   let cell = null;
   let container = null;
+  puzzleBoard.classList.add("puzzle-board");
   wrapper.classList.add("wrapper");
+  gameInfo.classList.add("game-info");
+  counter.classList.add("counter");
+  timer.classList.add("timer");
+  timer.textContent = "00 : 00";
   dataCodesShuffled.forEach((code) => {
     cell = document.createElement("div");
     container = document.createElement("div");
@@ -16,19 +25,25 @@ const createElements = () => {
     container.append(cell);
     cell.classList.add("cell");
     container.classList.add("container");
-    wrapper.append(container);
+    puzzleBoard.append(container);
   });
 
   document.body.prepend(wrapper);
+  wrapper.append(gameInfo);
+  wrapper.append(puzzleBoard);
+  gameInfo.append(timer);
+  gameInfo.append(counter);
 };
 
 const dragNDrop = () => {
   const containers = document.querySelectorAll(".container");
   const cells = document.querySelectorAll(".cell");
   const emptyCell = document.querySelector('[data-code="0"]');
+  let counter = document.querySelector(".counter");
+  counter.innerHTML = counter.innerHTML || 0;
 
   cells.forEach((cell) => {
-    cell.addEventListener("dragstart", function () {
+    cell.addEventListener("dragstart", function (evt) {
       setTimeout(() => {
         this.classList.add("hidden");
         this.classList.add("dragging");
@@ -141,11 +156,12 @@ const dragNDrop = () => {
       evt.preventDefault();
     });
 
-    container.addEventListener("drop", function (evt) {
+    container.addEventListener("drop", function () {
       if (this.classList.contains("empty")) {
         const dragging = document.querySelector(".dragging");
         this.append(dragging);
         this.classList.remove("hovered");
+        counter.innerHTML = Number(counter.innerHTML) + 1;
       }
     });
   });
@@ -226,6 +242,8 @@ const onClickTranslate = () => {
   const cells = document.querySelectorAll(".cell");
   const emptyCell = document.querySelector('[data-code="0"]');
   let emptyContainer = document.querySelector(".empty");
+  let counter = document.querySelector(".counter");
+  counter.innerHTML = counter.innerHTML || 0;
 
   /*
 
@@ -292,7 +310,7 @@ const onClickTranslate = () => {
     });
 
     cell.addEventListener("transitionend", function () {
-        // заново определяем пустую клетку, потому что ее значение ведь изменилось при клике, теперь она там где раньше была ячейка
+      // заново определяем пустую клетку, потому что ее значение ведь изменилось при клике, теперь она там где раньше была ячейка
       const emptyContainer = document.querySelector(".empty");
       const emptyTemporal = document.querySelector(".empty-temporal");
       // добавляем в нашу бывшую пустую клетку передвигаемую ячейку
@@ -302,14 +320,85 @@ const onClickTranslate = () => {
       cell.style.transform = "translateY(0)";
       // снимаем с той клетки на которую передвинули ячейку класс временно пустой, она ведь больше не пустая
       emptyTemporal.classList.remove("empty-temporal");
+      counter.innerHTML = Number(counter.innerHTML) + 1;
     });
   });
 };
+
+// таймер
+
+const createTimer = function () {
+  let timer = document.querySelector(".timer");
+  let watch = new Stopwatch(timer);
+  function Stopwatch(el) {
+    let time = 0;
+    let interval;
+    let offset;
+
+    function update() {
+      time += delta();
+      let formattedTime = timeFormatter(time);
+      el.textContent = formattedTime;
+    }
+    function delta() {
+      let now = Date.now();
+      let timePassed = now - offset;
+      offset = now;
+      return timePassed;
+    }
+    function timeFormatter(timeInMilliseconds) {
+      let time = new Date(timeInMilliseconds);
+      let minutes = time.getMinutes().toString();
+      let seconds = time.getSeconds().toString();
+
+      if (minutes.length < 2) {
+        minutes = `0${minutes}`;
+      }
+
+      if (seconds.length < 2) {
+        seconds = `0${seconds}`;
+      }
+      return `${minutes} : ${seconds}`;
+    }
+
+    this.isOn = false;
+
+    this.start = function () {
+      if (!this.isOn) {
+        interval = setInterval(update, 1000);
+        offset = Date.now();
+        this.isOn = true;
+      }
+    };
+    this.stop = function () {
+      if (this.isOn) {
+        clearInterval(interval);
+        interval = null;
+        this.isOn = false;
+      }
+    };
+    this.reset = function () {
+      time = 0;
+    };
+  }
+
+
+  window.addEventListener("dragstart", function () {
+    watch.start();
+  });
+  window.addEventListener("click", function () {
+    watch.start();
+  });
+
+};
+
+//
 
 createElements();
 dragNDrop();
 win();
 onClickTranslate();
+createTimer();
 window.addEventListener("load", getNearest);
 window.addEventListener("dragend", getNearest);
 
