@@ -505,7 +505,10 @@ const createStartScreen = () => {
   const gameModeList = document.createElement("ul");
   const easy = document.createElement("li");
   const normal = document.createElement("li");
+  const medium = document.createElement("li");
   const hard = document.createElement("li");
+  const insane = document.createElement("li");
+  const nightmare = document.createElement("li");
 
   startScreen.classList.add("start-screen");
   newGame.classList.add("new-game");
@@ -515,10 +518,16 @@ const createStartScreen = () => {
   easy.classList.add("mode", "easy");
   normal.classList.add("mode", "normal");
   hard.classList.add("mode", "hard");
+  medium.classList.add("mode", "medium");
+  insane.classList.add("mode", "insane");
+  nightmare.classList.add("mode", "nightmare");
   audio.classList.add("theme-audio");
   easy.dataset.mode = 9;
   normal.dataset.mode = 16;
-  hard.dataset.mode = 49;
+  medium.dataset.mode = 25;
+  hard.dataset.mode = 36;
+  insane.dataset.mode = 49;
+  nightmare.dataset.mode = 64;
   audio.setAttribute(
     "src",
     "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3"
@@ -528,7 +537,10 @@ const createStartScreen = () => {
   loadGame.textContent = "load game";
   easy.textContent = "easy";
   normal.textContent = "normal";
+  medium.textContent = "medium";
   hard.textContent = "hard";
+  insane.textContent = "insane";
+  nightmare.textContent = "nightmare";
   let popupText =
     "Sorry, but you haven't got saved game yet. Please, start new game";
 
@@ -573,7 +585,10 @@ const createStartScreen = () => {
   document.body.append(gameModeList);
   gameModeList.appendChild(easy);
   gameModeList.appendChild(normal);
+  gameModeList.appendChild(medium);
   gameModeList.appendChild(hard);
+  gameModeList.appendChild(insane);
+  gameModeList.appendChild(nightmare);
 };
 
 const goToMenu = function (e) {
