@@ -1,15 +1,15 @@
 // создаем массив дата кодов
-n = 16;
-const dataCodes = [];
-for (let i = 1; i < n; i++) {
-  dataCodes.push(i);
-}
-dataCodes.push(0);
+const createArray = (n) => {
+  const dataCodes = [];
+  for (let i = 1; i < n; i++) {
+    dataCodes.push(i);
+  }
+  dataCodes.push(0);
+  return dataCodes;
+};
 //
 
-
-const dataCodesShuffled = dataCodes.sort(() => Math.random() - 0.5);
-const createElements = (seq) => {
+const createElements = (seq, columns) => {
   let timer = document.createElement("div");
   let counter = document.createElement("div");
   let save = document.createElement("div");
@@ -18,6 +18,8 @@ const createElements = (seq) => {
   let puzzleBoard = document.createElement("div");
   let wrapper = document.createElement("div");
   let controlPanel = document.createElement("div");
+  const cellAudio = document.createElement("audio");
+  const dragAudio = document.createElement("audio");
   let cell = null;
   let container = null;
   puzzleBoard.classList.add("puzzle-board");
@@ -28,6 +30,17 @@ const createElements = (seq) => {
   controlPanel.classList.add("control-panel");
   save.classList.add("save");
   reload.classList.add("reload");
+  cellAudio.classList.add("cell-audio");
+  dragAudio.classList.add("drag-audio");
+  cellAudio.setAttribute(
+    "src",
+    "looperman-l-3210323-0229772-more-8-bit-shit (mp3cut.net).wav"
+  );
+  dragAudio.setAttribute(
+    "src",
+    "looperman-l-1668761-0230739-pyrex-type-loop-flip (mp3cut.net).wav"
+  );
+
   timer.textContent = "00:00";
   save.textContent = "save";
   reload.textContent = "reload";
@@ -53,6 +66,10 @@ const createElements = (seq) => {
   gameInfo.append(counter);
   controlPanel.append(save);
   controlPanel.append(reload);
+  wrapper.append(cellAudio);
+  wrapper.append(dragAudio);
+
+  puzzleBoard.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
 };
 
 const dragNDrop = () => {
@@ -60,6 +77,7 @@ const dragNDrop = () => {
   const cells = document.querySelectorAll(".cell");
   const emptyCell = document.querySelector('[data-code="0"]');
   let counter = document.querySelector(".counter");
+  const dragAudio = document.querySelector(".drag-audio");
   counter.innerHTML = counter.innerHTML || 0;
 
   cells.forEach((cell) => {
@@ -178,6 +196,7 @@ const dragNDrop = () => {
 
     container.addEventListener("drop", function () {
       if (this.classList.contains("empty")) {
+        dragAudio.play();
         const dragging = document.querySelector(".dragging");
         this.append(dragging);
         this.classList.remove("hovered");
@@ -191,7 +210,7 @@ const win = () => {
   setTimeout(() => {
     let cells = document.querySelectorAll(".cell");
     let currentArr = [];
-    let winArr = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    let winArr = createArray(Number(window.localStorage.getItem("cells")));
     cells.forEach((cell) => {
       currentArr.push(cell.dataset.code);
     });
@@ -200,12 +219,8 @@ const win = () => {
       document.location.reload();
       alert("ОМАЕВА МО ШИНДЕРУ");
     }
-
   }, 500);
-  };
-
-
-
+};
 
 const getNearest = () => {
   const emptyContainer = document.querySelector(".empty");
@@ -267,6 +282,7 @@ const onClickTranslate = () => {
   const emptyCell = document.querySelector('[data-code="0"]');
   let emptyContainer = document.querySelector(".empty");
   let counter = document.querySelector(".counter");
+  const cellAudio = document.querySelector(".cell-audio");
   counter.innerHTML = counter.innerHTML || 0;
 
   /*
@@ -304,6 +320,9 @@ const onClickTranslate = () => {
     cell.addEventListener("click", function () {
       // смотрим только на те контейнеры которые дрэггэбл
       if (cell.getAttribute("draggable") == "true") {
+        cellAudio.play();
+        cellAudio.volume = 0.3;
+        cellAudio.currentTime = 0;
         emptyContainer = document.querySelector(".empty");
         emptyCell.remove();
         // убираем с нынешней пустой клетки класс обычной пустой клетки и добавляем класс временной пустой клетки (вот это я придумал, конечно)
@@ -355,7 +374,7 @@ const createTimer = function (curTime) {
   let timer = document.querySelector(".timer");
   let saveGame = document.querySelector(".save");
   let load = document.querySelectorAll(".load");
-  let time =  curTime;
+  let time = curTime;
   let watch = new Stopwatch(timer);
   function Stopwatch(el) {
     let interval;
@@ -436,9 +455,13 @@ const reloadGame = () => {
   const wrapper = document.querySelector(".wrapper");
 
   reload.addEventListener("click", function () {
-    const dataCodesShuffled = dataCodes.sort(() => Math.random() - 0.5);
     wrapper.remove();
-    createElements(dataCodesShuffled);
+    createElements(
+      createArray(Number(window.localStorage.getItem("cells"))).sort(
+        () => Math.random() - 0.5
+      ),
+      Math.sqrt(Number(window.localStorage.getItem("cells")))
+    );
     getNearest();
     dragNDrop();
     document.addEventListener("dragend", win);
@@ -449,8 +472,9 @@ const reloadGame = () => {
     let time = 0;
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
-      cell.addEventListener('click', win);
+      cell.addEventListener("click", win);
       cell.addEventListener("transitionend", getNearest);
+      window.addEventListener("keydown", goToMenu);
     });
   });
 };
@@ -477,22 +501,36 @@ const createStartScreen = () => {
   const newGame = document.createElement("div");
   const loadGame = document.createElement("div");
   const popup = document.createElement("div");
-  const audio = document.createElement('audio');
+  const audio = document.createElement("audio");
+  const gameModeList = document.createElement("ul");
+  const easy = document.createElement("li");
+  const normal = document.createElement("li");
+  const hard = document.createElement("li");
 
   startScreen.classList.add("start-screen");
   newGame.classList.add("new-game");
   loadGame.classList.add("load-game");
   popup.classList.add("popup");
-  audio.setAttribute("src", "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3")
+  gameModeList.classList.add("game-mode");
+  easy.classList.add("mode", "easy");
+  normal.classList.add("mode", "normal");
+  hard.classList.add("mode", "hard");
+  audio.classList.add("theme-audio");
+  easy.dataset.mode = 9;
+  normal.dataset.mode = 16;
+  hard.dataset.mode = 49;
+  audio.setAttribute(
+    "src",
+    "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3"
+  );
+
   newGame.textContent = "new game";
   loadGame.textContent = "load game";
+  easy.textContent = "easy";
+  normal.textContent = "normal";
+  hard.textContent = "hard";
   let popupText =
     "Sorry, but you haven't got saved game yet. Please, start new game";
-  document.body.prepend(startScreen);
-  startScreen.append(newGame);
-  startScreen.append(loadGame);
-  document.body.prepend(popup);
-  document.body.append(audio);
 
   let i = 0;
   function typeWriter() {
@@ -503,53 +541,92 @@ const createStartScreen = () => {
     } else {
       setTimeout(() => {
         i = 0;
-        popup.innerHTML = '';
-      }, 1000)
+        popup.innerHTML = "";
+      }, 1000);
     }
+  }
 
-    
-  } 
-  
-  if (window.localStorage.getItem("time") == 0) {
-loadGame.addEventListener("click", typeWriter);
+  if (
+    window.localStorage.getItem("time") == 0 ||
+    !window.localStorage.getItem("time")
+  ) {
+    loadGame.addEventListener("click", typeWriter);
   } else {
     loadGame.addEventListener("click", function () {
       audio.play();
+      audio.volume = 0.1;
+      audio.loop = true;
     });
   }
 
-  newGame.addEventListener('click' ,function () {
-  audio.play();
+  newGame.addEventListener("click", function () {
+    audio.play();
+    audio.volume = 0.1;
+    audio.loop = true;
+  });
 
-  })
+  document.body.prepend(startScreen);
+  startScreen.append(newGame);
+  startScreen.append(loadGame);
+  document.body.prepend(popup);
+  document.body.append(audio);
+  document.body.append(gameModeList);
+  gameModeList.appendChild(easy);
+  gameModeList.appendChild(normal);
+  gameModeList.appendChild(hard);
+};
+
+const goToMenu = function (e) {
+  let wrapper = document.querySelector(".wrapper");
+  let audio = document.querySelector(".theme-audio");
+  if (e.code == "Escape" && wrapper) {
+    wrapper.remove();
+    audio.remove();
+    createStartScreen();
+    startGame();
+    console.log(wrapper)
+  }
 };
 
 const startGame = () => {
   const newGame = document.querySelector(".new-game");
   const startScreen = document.querySelector(".start-screen");
   const loadGame = document.querySelector(".load-game");
-  const popup = document.querySelector('.popup')
+  const popup = document.querySelector(".popup");
+  const gameModeList = document.querySelector(".game-mode");
+  const gameModes = document.querySelectorAll(".mode");
+  const puzzleBoard = document.querySelector(".puzzle-board");
+
   let loadedDataCodes = window.localStorage.getItem("currSeq");
   const start = function () {
-    if (this === newGame) {
+    /*
+    gameModes.forEach((gameMode) => {
+      gameMode.addEventListener('click', function () {
       window.localStorage.setItem("time", 0);
-      createElements(dataCodesShuffled);
+      createElements(createArray(16));
       createTimer(0);
-    }
+      })
+  })
+
+  */
 
     if (this === loadGame) {
       loadedDataCodes = loadedDataCodes.split(",");
-      createElements(loadedDataCodes);
+      createElements(
+        loadedDataCodes,
+        Math.sqrt(Number(window.localStorage.getItem("cells")))
+      );
       let timer = document.querySelector(".timer");
       let counter = document.querySelector(".counter");
 
       timer.innerHTML = window.localStorage.getItem("outerTime");
       counter.innerHTML = window.localStorage.getItem("counter");
-      createTimer(Number(window.localStorage.getItem("time")))
+      createTimer(Number(window.localStorage.getItem("time")));
     }
 
     startScreen.remove();
     popup.remove();
+    gameModeList.remove();
 
     getNearest();
     dragNDrop();
@@ -562,13 +639,36 @@ const startGame = () => {
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
       cell.addEventListener("transitionend", getNearest);
-      cell.addEventListener('click', win);
+      cell.addEventListener("click", win);
     });
     window.addEventListener("dragend", getNearest);
+    window.addEventListener("keydown", goToMenu);
   };
 
-  newGame.addEventListener("click", start);
-  if (window.localStorage.getItem("time") != 0) {
+  newGame.addEventListener("click", function () {
+    startScreen.classList.add("hidden");
+    popup.classList.add("hidden");
+    gameModeList.classList.add("visible");
+
+    gameModes.forEach((gameMode) => {
+      gameMode.addEventListener("click", function () {
+        window.localStorage.setItem("time", 0);
+        createElements(
+          createArray(Number(gameMode.dataset.mode)).sort(
+            () => Math.random() - 0.5
+          ),
+          Math.sqrt(Number(gameMode.dataset.mode))
+        );
+        window.localStorage.setItem("cells", gameMode.dataset.mode);
+        createTimer(0);
+        start();
+      });
+    });
+  });
+  if (
+    window.localStorage.getItem("time") &&
+    window.localStorage.getItem("time") != 0
+  ) {
     loadGame.addEventListener("click", start);
   }
 };

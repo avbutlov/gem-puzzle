@@ -36,6 +36,17 @@
     }
   }
 
+
+  @keyframes textblick {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  
 body {
     display: flex;
     align-items: center;
@@ -67,6 +78,24 @@ body {
 .new-game,
 .load-game {
     cursor: pointer;
+}
+
+.new-game:hover,
+.load-game:hover,
+.mode:hover,
+.save:hover,
+.reload:hover {
+    animation-duration: .5s;
+         animation-name: textblick;
+         animation-iteration-count: infinite;
+         animation-direction: alternate;
+}
+
+.wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .game-info {
@@ -121,6 +150,27 @@ body {
 .reload {
     cursor: pointer;
 }
+
+
+.game-mode {
+    list-style: none;
+    text-align: center;
+    display: none;
+}
+
+.mode {
+    margin-bottom: 8rem;
+    cursor: pointer;
+}
+
+.visible {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
 
 .empty, .empty-temporal {
     background-color: black;
