@@ -483,7 +483,7 @@ const createStartScreen = () => {
   newGame.classList.add("new-game");
   loadGame.classList.add("load-game");
   popup.classList.add("popup");
-  audio.setAttribute("src", "/gem-puzzle/Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3")
+  audio.setAttribute("src", "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3")
   newGame.textContent = "new game";
   loadGame.textContent = "load game";
   let popupText =
