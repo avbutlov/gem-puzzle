@@ -114,6 +114,7 @@ body {
 
 .dragging {
     cursor: grabbing;
+    background-image: url('kisspng-computer-icons-clip-art-cute-ghost-5b1245dde5b797.8856301415279241899409.jpg');
 }
 
 .x-panel-ghost {
