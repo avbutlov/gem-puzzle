@@ -1,4 +1,3 @@
-// создаем массив дата кодов
 const createArray = (n) => {
     const dataCodes = [];
     for (let i = 1; i < n; i++) {
@@ -7,7 +6,6 @@ const createArray = (n) => {
     dataCodes.push(0);
     return dataCodes;
 };
-//
 
 const createElements = (seq, columns) => {
     let timer = document.createElement("div");
@@ -25,11 +23,11 @@ const createElements = (seq, columns) => {
     puzzleBoard.classList.add("puzzle-board");
     wrapper.classList.add("wrapper");
     gameInfo.classList.add("game-info");
-    counter.classList.add("counter");
-    timer.classList.add("timer");
+    counter.classList.add("counter", "info-item");
+    timer.classList.add("timer", "info-item");
     controlPanel.classList.add("control-panel");
-    save.classList.add("save");
-    reload.classList.add("reload");
+    save.classList.add("save", "btn");
+    reload.classList.add("reload", "btn");
     cellAudio.classList.add("cell-audio");
     dragAudio.classList.add("drag-audio");
     cellAudio.setAttribute(
@@ -475,7 +473,6 @@ const reloadGame = () => {
         cells.forEach((cell) => {
             cell.addEventListener("click", win);
             cell.addEventListener("transitionend", getNearest);
-            window.addEventListener("keydown", goToMenu);
         });
     });
 };
@@ -498,9 +495,13 @@ const saveGame = () => {
 };
 
 const createStartScreen = () => {
-    const startScreen = document.createElement("div");
+    const startGame = document.createElement("div");
+    const startWrapper = document.createElement("div");
     const newGame = document.createElement("div");
     const loadGame = document.createElement("div");
+    const settingsBtn = document.createElement("div");
+    const scoreBtn = document.createElement("div");
+    const settingsWrapper = document.createElement("div");
     const popup = document.createElement("div");
     const audio = document.createElement("audio");
     const gameModeList = document.createElement("ul");
@@ -510,19 +511,41 @@ const createStartScreen = () => {
     const hard = document.createElement("li");
     const insane = document.createElement("li");
     const nightmare = document.createElement("li");
+    const settingsNames = document.createElement("ul");
+    const settingSound = document.createElement('li');
+    const settingMusic = document.createElement("li");
+    const settingCells = document.createElement("li");
+    const settingsValues = document.createElement("ul");
+    const soundValue = document.createElement("li");
+    const musicValue = document.createElement("li");
+    const cellsValue = document.createElement("li");
 
-    startScreen.classList.add("start-screen");
-    newGame.classList.add("new-game");
-    loadGame.classList.add("load-game");
+    startWrapper.classList.add('start-wrapper')
+    startGame.classList.add("start-game");
+    newGame.classList.add("new-game", "btn");
+    loadGame.classList.add("load-game", "btn");
+    settingsBtn.classList.add("settings-button", "btn");
+    scoreBtn.classList.add("score-button", "btn");
     popup.classList.add("popup");
     gameModeList.classList.add("game-mode");
-    easy.classList.add("mode", "easy");
-    normal.classList.add("mode", "normal");
-    hard.classList.add("mode", "hard");
-    medium.classList.add("mode", "medium");
-    insane.classList.add("mode", "insane");
-    nightmare.classList.add("mode", "nightmare");
+    easy.classList.add("mode", "easy", "btn");
+    normal.classList.add("mode", "normal", "btn");
+    hard.classList.add("mode", "hard", "btn");
+    medium.classList.add("mode", "medium", "btn");
+    insane.classList.add("mode", "insane", "btn");
+    nightmare.classList.add("mode", "nightmare", "btn");
     audio.classList.add("theme-audio");
+    settingsWrapper.classList.add("settings-wrapper");
+    settingsNames.classList.add("settings-names");
+    settingSound.classList.add("setting-sound", "info-item");
+    settingMusic.classList.add("setting-music", "info-item");
+    settingCells.classList.add("setting-cells", "info-item");
+    settingsValues.classList.add("settings-values");
+    soundValue.classList.add("sound-value", "btn");
+    musicValue.classList.add("music-value", "btn");
+    cellsValue.classList.add("cells-value", "btn");
+
+
     easy.dataset.mode = 9;
     normal.dataset.mode = 16;
     medium.dataset.mode = 25;
@@ -534,14 +557,23 @@ const createStartScreen = () => {
         "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3"
     );
 
-    newGame.textContent = "new game";
-    loadGame.textContent = "load game";
+    newGame.innerHTML = "new game";
+    loadGame.innerHTML = "load game";
+    settingsBtn.textContent = "settings";
+    scoreBtn.textContent = "top score"
     easy.textContent = "easy";
     normal.textContent = "normal";
     medium.textContent = "medium";
     hard.textContent = "hard";
     insane.textContent = "insane";
     nightmare.textContent = "nightmare";
+    settingSound.textContent = "sounds";
+    settingMusic.textContent = "music";
+    settingCells.innerHTML = "cells<br/> style";
+    soundValue.textContent = window.localStorage.getItem("sound") || "yes";
+    musicValue.textContent = window.localStorage.getItem("music") || "yes";
+    cellsValue.textContent = window.localStorage.getItem("cellsStyle") || "numbers";
+
     let popupText =
         "Sorry, but you haven't got saved game yet. Please, start new game";
 
@@ -560,6 +592,39 @@ const createStartScreen = () => {
         }
     }
 
+
+    settingsValues.addEventListener("click", function(e) {
+        if (e.target === soundValue) {
+            if (soundValue.textContent === "yes") {
+                soundValue.textContent = 'no';
+
+            } else {
+                soundValue.textContent = 'yes';
+            }
+        } else if (e.target === musicValue) {
+            if (musicValue.textContent === "yes") {
+                musicValue.textContent = 'no';
+
+            } else {
+                musicValue.textContent = 'yes';
+            }
+        } else if (e.target === cellsValue) {
+            if (cellsValue.textContent === "numbers") {
+                cellsValue.textContent = 'pictures';
+
+            } else {
+                cellsValue.textContent = 'numbers';
+            }
+        }
+
+        window.localStorage.setItem("sound", `${soundValue.textContent}`)
+        window.localStorage.setItem("music", `${musicValue.textContent}`)
+        window.localStorage.setItem("cellsStyle", `${cellsValue.innerHTML}`)
+    })
+
+
+
+
     if (
         window.localStorage.getItem("time") == 0 ||
         !window.localStorage.getItem("time")
@@ -567,21 +632,30 @@ const createStartScreen = () => {
         loadGame.addEventListener("click", typeWriter);
     } else {
         loadGame.addEventListener("click", function() {
-            // audio.play();
-            // audio.volume = 0.1;
-            // audio.loop = true;
+            audio.play();
+            audio.volume = 0.1;
+            audio.loop = true;
         });
     }
 
     newGame.addEventListener("click", function() {
-        //  audio.play();
-        // audio.volume = 0.1;
-        // audio.loop = true;
+        audio.play();
+        audio.volume = 0.1;
+        audio.loop = true;
     });
 
-    document.body.prepend(startScreen);
-    startScreen.append(newGame);
-    startScreen.append(loadGame);
+    settingsBtn.addEventListener("click", closeStartMenu);
+
+
+
+
+
+    document.body.prepend(startWrapper);
+    startWrapper.append(startGame)
+    startGame.append(newGame);
+    startGame.append(loadGame);
+    startWrapper.append(settingsBtn);
+    startWrapper.append(scoreBtn)
     document.body.prepend(popup);
     document.body.append(audio);
     document.body.append(gameModeList);
@@ -591,28 +665,76 @@ const createStartScreen = () => {
     gameModeList.appendChild(hard);
     gameModeList.appendChild(insane);
     gameModeList.appendChild(nightmare);
+    document.body.append(settingsWrapper);
+    settingsWrapper.appendChild(settingsNames);
+    settingsWrapper.appendChild(settingsValues);
+    settingsNames.appendChild(settingSound);
+    settingsNames.appendChild(settingMusic);
+    settingsNames.appendChild(settingCells);
+    settingsValues.appendChild(soundValue);
+    settingsValues.appendChild(musicValue);
+    settingsValues.appendChild(cellsValue);
 };
 
 const goToMenu = function(e) {
     let wrapper = document.querySelector(".wrapper");
     let audio = document.querySelector(".theme-audio");
-    if (e.code == "Escape" && wrapper) {
-        wrapper.remove();
-        audio.remove();
-        createStartScreen();
-        startGame();
-        console.log(wrapper)
+    const gameModeList = document.querySelector(".game-mode");
+    const startWrapper = document.querySelector(".start-wrapper");
+    const popup = document.querySelector(".popup");
+    const settingsWrapper = document.querySelector(".settings-wrapper");
+    if (e.code == "Escape") {
+        if (wrapper) {
+            wrapper.remove();
+            audio.remove();
+            createStartScreen();
+            startGame();
+            console.log(wrapper)
+        }
+        if (gameModeList && gameModeList.classList.contains("visible")) {
+            gameModeList.classList.remove("visible");
+            startWrapper.classList.remove("hidden");
+            popup.classList.remove("hidden");
+
+        }
+
+        if (settingsWrapper && settingsWrapper.classList.contains("visible-settings")) {
+            settingsWrapper.classList.remove("visible-settings");
+            startWrapper.classList.remove("hidden");
+            popup.classList.remove("hidden");
+        }
+
+
     }
 };
 
+const closeStartMenu = function() {
+    const startWrapper = document.querySelector(".start-wrapper");
+    const popup = document.querySelector(".popup");
+    const gameModeList = document.querySelector(".game-mode");
+    const settingsBtn = document.querySelector(".settings-button")
+    const newGame = document.querySelector(".new-game");
+    const settingsWrapper = document.querySelector(".settings-wrapper");
+    startWrapper.classList.add("hidden");
+    popup.classList.add("hidden");
+    if (this === newGame) {
+        gameModeList.classList.add("visible");
+    } else if (this === settingsBtn) {
+        settingsWrapper.classList.add("visible-settings");
+    }
+
+}
+
 const startGame = () => {
     const newGame = document.querySelector(".new-game");
-    const startScreen = document.querySelector(".start-screen");
+    const startWrapper = document.querySelector(".start-wrapper");
     const loadGame = document.querySelector(".load-game");
     const popup = document.querySelector(".popup");
     const gameModeList = document.querySelector(".game-mode");
     const gameModes = document.querySelectorAll(".mode");
     const puzzleBoard = document.querySelector(".puzzle-board");
+    const settingsWrapper = document.querySelector(".settings-wrapper");
+
 
     let loadedDataCodes = window.localStorage.getItem("currSeq");
     const start = function() {
@@ -641,7 +763,8 @@ const startGame = () => {
             createTimer(Number(window.localStorage.getItem("time")));
         }
 
-        startScreen.remove();
+        startWrapper.remove();
+        settingsWrapper.remove();
         popup.remove();
         gameModeList.remove();
 
@@ -659,29 +782,26 @@ const startGame = () => {
             cell.addEventListener("click", win);
         });
         window.addEventListener("dragend", getNearest);
-        window.addEventListener("keydown", goToMenu);
     };
 
-    newGame.addEventListener("click", function() {
-        startScreen.classList.add("hidden");
-        popup.classList.add("hidden");
-        gameModeList.classList.add("visible");
+    newGame.addEventListener("click", closeStartMenu);
 
-        gameModes.forEach((gameMode) => {
-            gameMode.addEventListener("click", function() {
-                window.localStorage.setItem("time", 0);
-                createElements(
-                    createArray(Number(gameMode.dataset.mode)).sort(
-                        () => Math.random() - 0.5
-                    ),
-                    Math.sqrt(Number(gameMode.dataset.mode))
-                );
-                window.localStorage.setItem("cells", gameMode.dataset.mode);
-                createTimer(0);
-                start();
-            });
+    gameModes.forEach((gameMode) => {
+        gameMode.addEventListener("click", function() {
+            window.localStorage.setItem("time", 0);
+            createElements(
+                createArray(Number(gameMode.dataset.mode)).sort(
+                    () => Math.random() - 0.5
+                ),
+                Math.sqrt(Number(gameMode.dataset.mode))
+            );
+            window.localStorage.setItem("cells", gameMode.dataset.mode);
+            createTimer(0);
+            start();
         });
     });
+
+
     if (
         window.localStorage.getItem("time") &&
         window.localStorage.getItem("time") != 0
@@ -689,6 +809,8 @@ const startGame = () => {
         loadGame.addEventListener("click", start);
     }
 };
+
+
 
 //
 
@@ -709,6 +831,6 @@ cells.forEach((cell) => {
 });
 
 */
-
 createStartScreen();
 startGame();
+window.addEventListener("keydown", goToMenu);

@@ -17,12 +17,8 @@ html {
     font-family: Nintendoid1;
     color: #eee;
     font-size: 1em;
-    text-shadow: 0.06rem 0 0.06rem #ea36af, -0.125rem 0 0.06rem #75fa69;
+    text-shadow: 0.130rem 0 0.06rem #ea36af, -0.125rem 0 0.06rem #75fa69;
     letter-spacing: 0.125em;
-    animation-duration: 0.01s;
-    animation-name: textflicker;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
 }
 
 @keyframes textflicker {
@@ -55,35 +51,51 @@ body {
 
 .popup {
     position: fixed;
-    width: 30%;
-    height: 200px;
+    text-align: justify;
+    width: 40%;
+    height: 150px;
     font-size: 1rem;
-    transform: translate(0, -50%);
     z-index: 2000;
-    top: 30%;
+    top: 10%;
 }
 
-.start-screen {
+.start-wrapper {
     display: flex;
-    justify-content: space-between;
-    width: 50%;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
     text-align: center;
+    font-size: 2rem;
+}
+
+.new-game {
+    margin-bottom: 4rem;
+}
+
+.start-game {
+    display: flex;
+    flex-direction: column;
+    min-width: 310px;
+    justify-content: space-between;
+    margin-bottom: 4rem;
 }
 
 .new-game,
-.load-game {
+.load-game,
+.settings-button {
     cursor: pointer;
 }
 
-.new-game:hover,
-.load-game:hover,
-.mode:hover,
-.save:hover,
-.reload:hover {
+.settings-button {
+    margin-bottom: 4rem;
+}
+
+.btn:hover {
     animation-duration: .5s;
     animation-name: textblick;
     animation-iteration-count: infinite;
     animation-direction: alternate;
+    cursor: pointer;
 }
 
 .wrapper {
@@ -145,8 +157,11 @@ body {
     cursor: pointer;
 }
 
-.game-mode {
+ul {
     list-style: none;
+}
+
+.game-mode {
     text-align: center;
     display: none;
 }
@@ -156,8 +171,30 @@ body {
     cursor: pointer;
 }
 
+.settings-wrapper {
+    display: none;
+    width: 70%;
+    justify-content: space-between;
+}
+
+.settings-wrapper li {
+    margin-bottom: 4rem;
+}
+
+.settings-values {
+    text-align: right;
+}
+
+.cells-value {
+    line-height: 2;
+}
+
 .visible {
     display: block;
+}
+
+.visible-settings {
+    display: flex;
 }
 
 .hidden {
@@ -177,7 +214,8 @@ body {
     cursor: grab;
 }
 
-[draggable='false'] {
+[draggable='false'],
+.info-item {
     user-select: none;
 }
 
