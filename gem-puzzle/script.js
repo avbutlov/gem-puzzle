@@ -469,7 +469,7 @@ const reloadGame = () => {
     createTimer(0);
     reloadGame();
     saveGame();
-    let time = 0;
+    let time = 0; // удалить
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
       cell.addEventListener("click", win);
