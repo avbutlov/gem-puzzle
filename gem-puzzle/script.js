@@ -67,7 +67,21 @@ function createElements(seq, columns) {
   wrapper.append(cellAudio);
   wrapper.append(dragAudio);
 
-  puzzleBoard.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+  puzzleBoard.style.gridTemplateColumns = `repeat(${columns}, min-content)`;
+
+  window.addEventListener('resize', function () {
+    let wrapper = document.querySelector(".wrapper")
+    if (wrapper) {
+      getOffset();
+    }
+  });
+  window.addEventListener('resize', function () {
+    let wrapper = document.querySelector('.wrapper')
+    if (wrapper) {
+      getNearest();
+    }
+  });
+  
 }
 
 function dragNDrop() {
@@ -246,7 +260,7 @@ function win() {
       }
 
       window.localStorage.setItem("scoreRecord", JSON.stringify(scoreRecord));
-
+      window.localStorage.setItem("time", 0);
       alert(window.localStorage.getItem("scoreRecord"));
       document.location.reload();
     }
@@ -254,66 +268,75 @@ function win() {
 }
 
 function insertRecords() {
-
   const scoreTable = document.querySelector(".score-table");
   const noScore = document.createElement("div");
 
+  if (window.localStorage.getItem("scoreRecord")) {
+    if (noScore) {
+      noScore.remove();
+    }
 
+    let scoreRecord = JSON.parse(window.localStorage.getItem("scoreRecord"));
 
-if (window.localStorage.getItem("scoreRecord")) {
+    scoreRecord.forEach((score) => {
+      const positionStat = document.createElement("div");
+      const cellStat = document.createElement("div");
+      const moveStat = document.createElement("div");
+      const timeStat = document.createElement("div");
+      const totalStat = document.createElement("div");
 
-  if (noScore) {
-    noScore.remove();
+      positionStat.textContent = scoreRecord.indexOf(score) + 1;
+      cellStat.textContent = score.cells;
+      moveStat.textContent = score.moves;
+      timeStat.textContent = score.time;
+      totalStat.textContent = score.totalScore;
+
+      scoreTable.append(positionStat);
+      scoreTable.append(cellStat);
+      scoreTable.append(moveStat);
+      scoreTable.append(timeStat);
+      scoreTable.append(totalStat);
+    });
+  } else {
+    noScore.classList.add("no-score");
+    scoreTable.append(noScore);
+    noScore.textContent = "there are no scores yet. Be the first one!";
   }
-
-
-  let scoreRecord = JSON.parse(window.localStorage.getItem("scoreRecord"));
-
-  scoreRecord.forEach((score) => {
-    const positionStat = document.createElement("div");
-    const cellStat = document.createElement("div");
-    const moveStat = document.createElement("div");
-    const timeStat = document.createElement("div");
-    const totalStat = document.createElement("div");
-
-    positionStat.textContent = scoreRecord.indexOf(score) + 1;
-    cellStat.textContent = score.cells;
-    moveStat.textContent = score.moves;
-    timeStat.textContent = score.time;
-    totalStat.textContent = score.totalScore;
-
-    scoreTable.append(positionStat)
-    scoreTable.append(cellStat);
-    scoreTable.append(moveStat);
-    scoreTable.append(timeStat);
-    scoreTable.append(totalStat);
-  });
-} else {
-  noScore.classList.add("no-score");
-  scoreTable.append(noScore);
-  noScore.textContent = "there are no scores yet. Be the first one!"
 }
+
+function getOffset() {
+  const container = document.querySelector(".container");
+  cellOffset =
+    Number(window.getComputedStyle(container).width.match(/[0-9]+/g)[0]) +
+    Number(window.getComputedStyle(container).margin.match(/[0-9]+/g)[0]) * 2;
+return cellOffset
 }
+
+
 
 function getNearest() {
   const emptyContainer = document.querySelector(".empty");
   const containers = document.querySelectorAll(".container");
+  let cellOffset = getOffset();
 
+  
+
+console.log(cellOffset)
   containers.forEach((container) => {
     // поиск горизонтальных ячеек поблизости
     if (
-      (container.getBoundingClientRect().x - 120 ==
+      (container.getBoundingClientRect().x - cellOffset ==
         emptyContainer.getBoundingClientRect().x ||
-        container.getBoundingClientRect().x + 120 ==
+        container.getBoundingClientRect().x + cellOffset ==
           emptyContainer.getBoundingClientRect().x) &&
-      container.getBoundingClientRect().y + 120 !=
+      container.getBoundingClientRect().y + cellOffset !=
         emptyContainer.getBoundingClientRect().y &&
-      container.getBoundingClientRect().y - 120 !=
+      container.getBoundingClientRect().y - cellOffset !=
         emptyContainer.getBoundingClientRect().y &&
       Math.abs(
         container.getBoundingClientRect().x -
           emptyContainer.getBoundingClientRect().x
-      ) == 120 &&
+      ) == cellOffset &&
       Math.abs(
         container.getBoundingClientRect().y -
           emptyContainer.getBoundingClientRect().y
@@ -323,18 +346,18 @@ function getNearest() {
       container.classList.add("container-draggable");
     } else if (
       // поиск вертикальных ячеек поблизости
-      (container.getBoundingClientRect().y - 120 ==
+      (container.getBoundingClientRect().y - cellOffset ==
         emptyContainer.getBoundingClientRect().y ||
-        container.getBoundingClientRect().y + 120 ==
+        container.getBoundingClientRect().y + cellOffset ==
           emptyContainer.getBoundingClientRect().y) &&
-      container.getBoundingClientRect().x + 120 !=
+      container.getBoundingClientRect().x + cellOffset !=
         emptyContainer.getBoundingClientRect().x &&
-      container.getBoundingClientRect().x - 120 !=
+      container.getBoundingClientRect().x - cellOffset !=
         emptyContainer.getBoundingClientRect().x &&
       Math.abs(
         container.getBoundingClientRect().y -
           emptyContainer.getBoundingClientRect().y
-      ) == 120 &&
+      ) == cellOffset &&
       Math.abs(
         container.getBoundingClientRect().x -
           emptyContainer.getBoundingClientRect().x
@@ -401,7 +424,10 @@ function onClickTranslate() {
           cellAudio.volume = 0.3;
           cellAudio.currentTime = 0;
         }
-        window.localStorage.setItem("rec", JSON.stringify([{ value: 1 }]));
+
+        let cellOffset = getOffset();
+
+
         emptyContainer = document.querySelector(".empty");
         emptyCell.remove();
         // убираем с нынешней пустой клетки класс обычной пустой клетки и добавляем класс временной пустой клетки (вот это я придумал, конечно)
@@ -411,17 +437,17 @@ function onClickTranslate() {
         cell.closest(".container").classList.add("empty");
         // определяем в какую сторону будем двигать клетку (и все это ради какой-то анимации, ужас)
         if (
-          this.closest(".container").getBoundingClientRect().x - 120 ==
+          this.closest(".container").getBoundingClientRect().x - cellOffset ==
           emptyContainer.getBoundingClientRect().x
         ) {
           this.style.transform = "translateX(-120%)";
         } else if (
-          this.closest(".container").getBoundingClientRect().x + 120 ==
+          this.closest(".container").getBoundingClientRect().x + cellOffset ==
           emptyContainer.getBoundingClientRect().x
         ) {
           this.style.transform = "translateX(120%)";
         } else if (
-          this.closest(".container").getBoundingClientRect().y - 120 ==
+          this.closest(".container").getBoundingClientRect().y - cellOffset ==
           emptyContainer.getBoundingClientRect().y
         ) {
           this.style.transform = "translateY(-120%)";
@@ -539,6 +565,7 @@ function reloadGame() {
   const reload = document.querySelector(".reload");
   const wrapper = document.querySelector(".wrapper");
   const save = document.querySelector(".save");
+  save.addEventListener("click", saveGame);
 
   reload.addEventListener("click", function () {
     wrapper.remove();
@@ -554,7 +581,6 @@ function reloadGame() {
     onClickTranslate();
     createTimer(0);
     reloadGame();
-    save.addEventListener("click", saveGame);
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
       cell.addEventListener("click", win);
@@ -894,6 +920,7 @@ function startGame() {
     reloadGame();
     const save = document.querySelector(".save");
     save.addEventListener("click", saveGame);
+
 
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
