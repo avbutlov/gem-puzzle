@@ -1,15 +1,13 @@
-// создаем массив дата кодов
-const createArray = (n) => {
+function createArray(n) {
   const dataCodes = [];
   for (let i = 1; i < n; i++) {
     dataCodes.push(i);
   }
   dataCodes.push(0);
   return dataCodes;
-};
-//
+}
 
-const createElements = (seq, columns) => {
+function createElements(seq, columns) {
   let timer = document.createElement("div");
   let counter = document.createElement("div");
   let save = document.createElement("div");
@@ -25,11 +23,11 @@ const createElements = (seq, columns) => {
   puzzleBoard.classList.add("puzzle-board");
   wrapper.classList.add("wrapper");
   gameInfo.classList.add("game-info");
-  counter.classList.add("counter");
-  timer.classList.add("timer");
+  counter.classList.add("counter", "info-item");
+  timer.classList.add("timer", "info-item");
   controlPanel.classList.add("control-panel");
-  save.classList.add("save");
-  reload.classList.add("reload");
+  save.classList.add("save", "btn");
+  reload.classList.add("reload", "btn");
   cellAudio.classList.add("cell-audio");
   dragAudio.classList.add("drag-audio");
   cellAudio.setAttribute(
@@ -70,9 +68,9 @@ const createElements = (seq, columns) => {
   wrapper.append(dragAudio);
 
   puzzleBoard.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-};
+}
 
-const dragNDrop = () => {
+function dragNDrop() {
   const containers = document.querySelectorAll(".container");
   const cells = document.querySelectorAll(".cell");
   const emptyCell = document.querySelector('[data-code="0"]');
@@ -113,7 +111,7 @@ const dragNDrop = () => {
       });
 
       /*
-
+ 
         if (container.getBoundingClientRect().x - 120 == emptyContainer.getBoundingClientRect().x || container.getBoundingClientRect().x + 120 == emptyContainer.getBoundingClientRect().x) {
          
          if (container.getBoundingClientRect().y + 120 != emptyContainer.getBoundingClientRect().y && container.getBoundingClientRect().y - 120 != emptyContainer.getBoundingClientRect().y) {
@@ -122,7 +120,7 @@ const dragNDrop = () => {
            }
          }
         }
-
+ 
         if (container.getBoundingClientRect().y - 120 == emptyContainer.getBoundingClientRect().y || container.getBoundingClientRect().y + 120 == emptyContainer.getBoundingClientRect().y) {
          
           if (container.getBoundingClientRect().x + 120 != emptyContainer.getBoundingClientRect().x && container.getBoundingClientRect().x - 120 != emptyContainer.getBoundingClientRect().x) {
@@ -131,8 +129,8 @@ const dragNDrop = () => {
             }
           }
          }
-
-
+ 
+ 
       if (
         (container.getBoundingClientRect().x - 120 ==
           emptyContainer.getBoundingClientRect().x ||
@@ -174,7 +172,7 @@ const dragNDrop = () => {
       } else {
         console.log('no')
       }
-
+ 
 */
     });
 
@@ -196,7 +194,11 @@ const dragNDrop = () => {
 
     container.addEventListener("drop", function () {
       if (this.classList.contains("empty")) {
-        dragAudio.play();
+        if (window.localStorage.getItem("sound") === "yes") {
+          dragAudio.play();
+          dragAudio.currentTime = 0;
+        }
+        console.log(JSON.parse(window.localStorage.getItem("rec")));
         const dragging = document.querySelector(".dragging");
         this.append(dragging);
         this.classList.remove("hovered");
@@ -204,9 +206,9 @@ const dragNDrop = () => {
       }
     });
   });
-};
+}
 
-const win = () => {
+function win() {
   setTimeout(() => {
     let cells = document.querySelectorAll(".cell");
     let currentArr = [];
@@ -216,13 +218,84 @@ const win = () => {
     });
 
     if (currentArr.join("") == winArr.join("")) {
+      saveGame();
+      if (!window.localStorage.getItem("scoreRecord")) {
+        window.localStorage.setItem("scoreRecord", JSON.stringify([]));
+      }
+      let scoreRecord = JSON.parse(window.localStorage.getItem("scoreRecord"));
+      scoreRecord.push({
+        cells: `${Math.sqrt(
+          Number(window.localStorage.getItem("cells"))
+        )}x${Math.sqrt(Number(window.localStorage.getItem("cells")))}`,
+        moves: window.localStorage.getItem("counter"),
+        time: window.localStorage.getItem("outerTime"),
+        totalScore: Math.round(
+          500 * Number(window.localStorage.getItem("cells")) -
+            (Number(window.localStorage.getItem("counter")) +
+              Number(window.localStorage.getItem("pastTime"))) /
+              100
+        ),
+      });
+
+      if (scoreRecord.length > 1 && scoreRecord.length <= 10) {
+        scoreRecord.sort((a, b) =>
+          a.totalScore > b.totalScore ? -1 : b.totalScore > a.totalScore ? 1 : 0
+        );
+      } else if (scoreRecord.length > 10) {
+        scoreRecord.pop();
+      }
+
+      window.localStorage.setItem("scoreRecord", JSON.stringify(scoreRecord));
+
+      alert(window.localStorage.getItem("scoreRecord"));
       document.location.reload();
-      alert("ОМАЕВА МО ШИНДЕРУ");
     }
   }, 500);
-};
+}
 
-const getNearest = () => {
+function insertRecords() {
+
+  const scoreTable = document.querySelector(".score-table");
+  const noScore = document.createElement("div");
+
+
+
+if (window.localStorage.getItem("scoreRecord")) {
+
+  if (noScore) {
+    noScore.remove();
+  }
+
+
+  let scoreRecord = JSON.parse(window.localStorage.getItem("scoreRecord"));
+
+  scoreRecord.forEach((score) => {
+    const positionStat = document.createElement("div");
+    const cellStat = document.createElement("div");
+    const moveStat = document.createElement("div");
+    const timeStat = document.createElement("div");
+    const totalStat = document.createElement("div");
+
+    positionStat.textContent = scoreRecord.indexOf(score) + 1;
+    cellStat.textContent = score.cells;
+    moveStat.textContent = score.moves;
+    timeStat.textContent = score.time;
+    totalStat.textContent = score.totalScore;
+
+    scoreTable.append(positionStat)
+    scoreTable.append(cellStat);
+    scoreTable.append(moveStat);
+    scoreTable.append(timeStat);
+    scoreTable.append(totalStat);
+  });
+} else {
+  noScore.classList.add("no-score");
+  scoreTable.append(noScore);
+  noScore.textContent = "there are no scores yet. Be the first one!"
+}
+}
+
+function getNearest() {
   const emptyContainer = document.querySelector(".empty");
   const containers = document.querySelectorAll(".container");
 
@@ -275,9 +348,9 @@ const getNearest = () => {
       container.classList.remove("container-draggable");
     }
   });
-};
+}
 
-const onClickTranslate = () => {
+function onClickTranslate() {
   const cells = document.querySelectorAll(".cell");
   const emptyCell = document.querySelector('[data-code="0"]');
   let emptyContainer = document.querySelector(".empty");
@@ -286,43 +359,49 @@ const onClickTranslate = () => {
   counter.innerHTML = counter.innerHTML || 0;
 
   /*
-
-          containers.forEach((container) => {
-            container.addEventListener("click", function () {
-                if (container.querySelector('.cell').getAttribute("draggable") == "true") {
-              if (
-                this.getBoundingClientRect().x - 120 ==
-                emptyContainer.getBoundingClientRect().x
-              ) {
-                this.querySelector(".cell").style.transform = "translateX(-120%)";
-                console.log(this.querySelector(".cell").getBoundingClientRect());
-                console.log(emptyContainer.getBoundingClientRect());
-              } else if (
-                this.getBoundingClientRect().x + 120 ==
-                emptyContainer.getBoundingClientRect().x
-              ) {
-                this.querySelector(".cell").style.transform = "translateX(120%)";
-              } else if (
-                this.getBoundingClientRect().y - 120 ==
-                emptyContainer.getBoundingClientRect().y
-              ) {
-                this.querySelector(".cell").style.transform = "translateY(-120%)";
-              } else {
-                this.querySelector(".cell").style.transform = "translateY(120%)";
+ 
+            containers.forEach((container) => {
+              container.addEventListener("click", function () {
+                  if (container.querySelector('.cell').getAttribute("draggable") == "true") {
+                if (
+                  this.getBoundingClientRect().x - 120 ==
+                  emptyContainer.getBoundingClientRect().x
+                ) {
+                  this.querySelector(".cell").style.transform = "translateX(-120%)";
+                  console.log(this.querySelector(".cell").getBoundingClientRect());
+                  console.log(emptyContainer.getBoundingClientRect());
+                } else if (
+                  this.getBoundingClientRect().x + 120 ==
+                  emptyContainer.getBoundingClientRect().x
+                ) {
+                  this.querySelector(".cell").style.transform = "translateX(120%)";
+                } else if (
+                  this.getBoundingClientRect().y - 120 ==
+                  emptyContainer.getBoundingClientRect().y
+                ) {
+                  this.querySelector(".cell").style.transform = "translateY(-120%)";
+                } else {
+                  this.querySelector(".cell").style.transform = "translateY(120%)";
+                }
               }
-            }
+              });
             });
-          });
-
-          */
-
+ 
+            */
   cells.forEach((cell) => {
     cell.addEventListener("click", function () {
       // смотрим только на те контейнеры которые дрэггэбл
-      if (cell.getAttribute("draggable") == "true") {
-        cellAudio.play();
-        cellAudio.volume = 0.3;
-        cellAudio.currentTime = 0;
+      if (
+        cell.getAttribute("draggable") == "true" &&
+        !cell.classList.contains("empty-temporal") &&
+        !cell.classList.contains("empty")
+      ) {
+        if (window.localStorage.getItem("sound") === "yes") {
+          cellAudio.play();
+          cellAudio.volume = 0.3;
+          cellAudio.currentTime = 0;
+        }
+        window.localStorage.setItem("rec", JSON.stringify([{ value: 1 }]));
         emptyContainer = document.querySelector(".empty");
         emptyCell.remove();
         // убираем с нынешней пустой клетки класс обычной пустой клетки и добавляем класс временной пустой клетки (вот это я придумал, конечно)
@@ -366,16 +445,17 @@ const onClickTranslate = () => {
       counter.innerHTML = Number(counter.innerHTML) + 1;
     });
   });
-};
+}
 
 // таймер
 
 const createTimer = function (curTime) {
   let timer = document.querySelector(".timer");
-  let saveGame = document.querySelector(".save");
+  let saveBtn = document.querySelector(".save");
   let load = document.querySelectorAll(".load");
   let time = curTime;
   let watch = new Stopwatch(timer);
+
   function Stopwatch(el) {
     let interval;
     let offset;
@@ -388,6 +468,10 @@ const createTimer = function (curTime) {
 
     this.save = function () {
       window.localStorage.setItem("time", time);
+    };
+
+    this.getTime = function () {
+      window.localStorage.setItem("pastTime", time);
     };
 
     function delta() {
@@ -442,17 +526,19 @@ const createTimer = function (curTime) {
   cells.forEach((cell) => {
     cell.addEventListener("click", function () {
       watch.start();
+      watch.getTime();
     });
   });
 
-  saveGame.addEventListener("click", function () {
+  saveBtn.addEventListener("click", function () {
     watch.save();
   });
 };
 
-const reloadGame = () => {
+function reloadGame() {
   const reload = document.querySelector(".reload");
   const wrapper = document.querySelector(".wrapper");
+  const save = document.querySelector(".save");
 
   reload.addEventListener("click", function () {
     wrapper.remove();
@@ -468,38 +554,43 @@ const reloadGame = () => {
     onClickTranslate();
     createTimer(0);
     reloadGame();
-    saveGame();
-    let time = 0;
+    save.addEventListener("click", saveGame);
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
       cell.addEventListener("click", win);
       cell.addEventListener("transitionend", getNearest);
-      window.addEventListener("keydown", goToMenu);
     });
   });
-};
+}
 
-const saveGame = () => {
+function saveGame() {
   const timer = document.querySelector(".timer");
   const counter = document.querySelector(".counter");
-  const save = document.querySelector(".save");
 
-  save.addEventListener("click", function () {
-    let cells = document.querySelectorAll(".cell");
-    let currentArr = [];
-    cells.forEach((cell) => {
-      currentArr.push(cell.dataset.code);
-    });
-    window.localStorage.setItem("currSeq", currentArr);
-    window.localStorage.setItem("counter", counter.innerHTML);
-    window.localStorage.setItem("outerTime", timer.innerHTML);
+  let cells = document.querySelectorAll(".cell");
+  let currentArr = [];
+  cells.forEach((cell) => {
+    currentArr.push(cell.dataset.code);
   });
-};
+  window.localStorage.setItem("currSeq", currentArr);
+  window.localStorage.setItem("counter", counter.innerHTML);
+  window.localStorage.setItem("outerTime", timer.innerHTML);
+}
 
-const createStartScreen = () => {
-  const startScreen = document.createElement("div");
+function createStartScreen() {
+  const startGame = document.createElement("div");
+  const startWrapper = document.createElement("div");
   const newGame = document.createElement("div");
   const loadGame = document.createElement("div");
+  const settingsBtn = document.createElement("div");
+  const scoreBtn = document.createElement("div");
+  const settingsWrapper = document.createElement("div");
+  const scoreTable = document.createElement("div");
+  const scorePosition = document.createElement("div");
+  const cellsCol = document.createElement("div");
+  const movesCol = document.createElement("div");
+  const timeCol = document.createElement("div");
+  const totalCol = document.createElement("div");
   const popup = document.createElement("div");
   const audio = document.createElement("audio");
   const gameModeList = document.createElement("ul");
@@ -509,19 +600,45 @@ const createStartScreen = () => {
   const hard = document.createElement("li");
   const insane = document.createElement("li");
   const nightmare = document.createElement("li");
+  const settingsNames = document.createElement("ul");
+  const settingSound = document.createElement("li");
+  const settingMusic = document.createElement("li");
+  const settingCells = document.createElement("li");
+  const settingsValues = document.createElement("ul");
+  const soundValue = document.createElement("li");
+  const musicValue = document.createElement("li");
+  const cellsValue = document.createElement("li");
 
-  startScreen.classList.add("start-screen");
-  newGame.classList.add("new-game");
-  loadGame.classList.add("load-game");
+  startWrapper.classList.add("start-wrapper");
+  startGame.classList.add("start-game");
+  newGame.classList.add("new-game", "btn");
+  loadGame.classList.add("load-game", "btn");
+  settingsBtn.classList.add("settings-button", "btn");
+  scoreBtn.classList.add("score-button", "btn");
   popup.classList.add("popup");
   gameModeList.classList.add("game-mode");
-  easy.classList.add("mode", "easy");
-  normal.classList.add("mode", "normal");
-  hard.classList.add("mode", "hard");
-  medium.classList.add("mode", "medium");
-  insane.classList.add("mode", "insane");
-  nightmare.classList.add("mode", "nightmare");
+  easy.classList.add("mode", "easy", "btn");
+  normal.classList.add("mode", "normal", "btn");
+  hard.classList.add("mode", "hard", "btn");
+  medium.classList.add("mode", "medium", "btn");
+  insane.classList.add("mode", "insane", "btn");
+  nightmare.classList.add("mode", "nightmare", "btn");
   audio.classList.add("theme-audio");
+  settingsWrapper.classList.add("settings-wrapper");
+  settingsNames.classList.add("settings-names");
+  settingSound.classList.add("setting-sound", "info-item");
+  settingMusic.classList.add("setting-music", "info-item");
+  settingCells.classList.add("setting-cells", "info-item");
+  settingsValues.classList.add("settings-values");
+  soundValue.classList.add("sound-value", "btn");
+  musicValue.classList.add("music-value", "btn");
+  cellsValue.classList.add("cells-value", "btn");
+  scoreTable.classList.add("score-table");
+  movesCol.classList.add("moves-col");
+  cellsCol.classList.add("cells-col");
+  timeCol.classList.add("time-col");
+  totalCol.classList.add("total-col");
+
   easy.dataset.mode = 9;
   normal.dataset.mode = 16;
   medium.dataset.mode = 25;
@@ -533,18 +650,34 @@ const createStartScreen = () => {
     "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3"
   );
 
-  newGame.textContent = "new game";
-  loadGame.textContent = "load game";
+  newGame.innerHTML = "new<br/> game";
+  loadGame.innerHTML = "load<br/> game";
+  settingsBtn.textContent = "settings";
+  scoreBtn.textContent = "top score";
   easy.textContent = "easy";
   normal.textContent = "normal";
   medium.textContent = "medium";
   hard.textContent = "hard";
   insane.textContent = "insane";
   nightmare.textContent = "nightmare";
+  settingSound.textContent = "sounds";
+  settingMusic.textContent = "music";
+  settingCells.innerHTML = "cells<br/> style";
+  soundValue.textContent = window.localStorage.getItem("sound") || "yes";
+  musicValue.textContent = window.localStorage.getItem("music") || "yes";
+  cellsValue.textContent =
+    window.localStorage.getItem("cellsStyle") || "numbers";
+  scorePosition.textContent = "#";
+  cellsCol.textContent = "cells";
+  movesCol.textContent = "moves";
+  timeCol.textContent = "time";
+  totalCol.textContent = "score";
+
   let popupText =
     "Sorry, but you haven't got saved game yet. Please, start new game";
 
   let i = 0;
+
   function typeWriter() {
     if (i < popupText.length) {
       popup.innerHTML += popupText.charAt(i);
@@ -558,28 +691,70 @@ const createStartScreen = () => {
     }
   }
 
+  settingsValues.addEventListener("click", function (e) {
+    if (e.target === soundValue) {
+      if (soundValue.textContent === "yes") {
+        soundValue.textContent = "no";
+      } else {
+        soundValue.textContent = "yes";
+      }
+    } else if (e.target === musicValue) {
+      if (musicValue.textContent === "yes") {
+        musicValue.textContent = "no";
+        audio.volume = 0;
+      } else {
+        musicValue.textContent = "yes";
+        audio.volume = 0.1;
+      }
+    } else if (e.target === cellsValue) {
+      if (cellsValue.textContent === "numbers") {
+        cellsValue.textContent = "pictures";
+      } else {
+        cellsValue.textContent = "numbers";
+      }
+    }
+
+    window.localStorage.setItem("sound", `${soundValue.textContent}`);
+    window.localStorage.setItem("music", `${musicValue.textContent}`);
+    window.localStorage.setItem("cellsStyle", `${cellsValue.innerHTML}`);
+  });
+
+  function playMusic() {
+    if (window.localStorage.getItem("music") === "yes") {
+      audio.play();
+      audio.volume = 0.1;
+      audio.loop = true;
+    }
+  }
+
   if (
     window.localStorage.getItem("time") == 0 ||
     !window.localStorage.getItem("time")
   ) {
     loadGame.addEventListener("click", typeWriter);
   } else {
-    loadGame.addEventListener("click", function () {
-      audio.play();
-      audio.volume = 0.1;
-      audio.loop = true;
-    });
+    loadGame.addEventListener("click", playMusic);
   }
 
-  newGame.addEventListener("click", function () {
-    audio.play();
-    audio.volume = 0.1;
-    audio.loop = true;
-  });
+  newGame.addEventListener("click", playMusic);
 
-  document.body.prepend(startScreen);
-  startScreen.append(newGame);
-  startScreen.append(loadGame);
+  settingsBtn.addEventListener("click", closeStartMenu);
+
+  scoreBtn.addEventListener("click", closeStartMenu);
+
+  window.localStorage.setItem("sound", `${soundValue.textContent}` || "yes");
+  window.localStorage.setItem("music", `${musicValue.textContent}` || "yes");
+  window.localStorage.setItem(
+    "cellsStyle",
+    `${cellsValue.innerHTML}` || "numbers"
+  );
+
+  document.body.prepend(startWrapper);
+  startWrapper.append(startGame);
+  startGame.append(newGame);
+  startGame.append(loadGame);
+  startWrapper.append(settingsBtn);
+  startWrapper.append(scoreBtn);
   document.body.prepend(popup);
   document.body.append(audio);
   document.body.append(gameModeList);
@@ -589,28 +764,95 @@ const createStartScreen = () => {
   gameModeList.appendChild(hard);
   gameModeList.appendChild(insane);
   gameModeList.appendChild(nightmare);
-};
+  document.body.append(settingsWrapper);
+  settingsWrapper.appendChild(settingsNames);
+  settingsWrapper.appendChild(settingsValues);
+  settingsNames.appendChild(settingSound);
+  settingsNames.appendChild(settingMusic);
+  settingsNames.appendChild(settingCells);
+  settingsValues.appendChild(soundValue);
+  settingsValues.appendChild(musicValue);
+  settingsValues.appendChild(cellsValue);
+  document.body.append(scoreTable);
+  scoreTable.appendChild(scorePosition);
+  scoreTable.appendChild(cellsCol);
+  scoreTable.appendChild(movesCol);
+  scoreTable.appendChild(timeCol);
+  scoreTable.appendChild(totalCol);
+
+  insertRecords();
+}
 
 const goToMenu = function (e) {
   let wrapper = document.querySelector(".wrapper");
   let audio = document.querySelector(".theme-audio");
-  if (e.code == "Escape" && wrapper) {
-    wrapper.remove();
-    audio.remove();
-    createStartScreen();
-    startGame();
-    console.log(wrapper)
+  const gameModeList = document.querySelector(".game-mode");
+  const startWrapper = document.querySelector(".start-wrapper");
+  const popup = document.querySelector(".popup");
+  const settingsWrapper = document.querySelector(".settings-wrapper");
+  const scoreTable = document.querySelector(".score-table");
+  if (e.code == "Escape") {
+    if (wrapper) {
+      wrapper.remove();
+      audio.remove();
+      createStartScreen();
+      startGame();
+      console.log(wrapper);
+    }
+    if (gameModeList && gameModeList.classList.contains("visible")) {
+      gameModeList.classList.remove("visible");
+      startWrapper.classList.remove("hidden");
+      popup.classList.remove("hidden");
+    }
+
+    if (
+      settingsWrapper &&
+      settingsWrapper.classList.contains("visible-settings")
+    ) {
+      settingsWrapper.classList.remove("visible-settings");
+      startWrapper.classList.remove("hidden");
+      popup.classList.remove("hidden");
+    }
+
+    if (scoreTable && scoreTable.classList.contains("visible-score")) {
+      scoreTable.classList.remove("visible-score");
+      startWrapper.classList.remove("hidden");
+      popup.classList.remove("hidden");
+    }
   }
 };
 
-const startGame = () => {
+const closeStartMenu = function () {
+  const startWrapper = document.querySelector(".start-wrapper");
+  const popup = document.querySelector(".popup");
+  const gameModeList = document.querySelector(".game-mode");
+  const settingsBtn = document.querySelector(".settings-button");
+  const scoreBtn = document.querySelector(".score-button");
+  const scoreTable = document.querySelector(".score-table");
   const newGame = document.querySelector(".new-game");
-  const startScreen = document.querySelector(".start-screen");
+  const settingsWrapper = document.querySelector(".settings-wrapper");
+  startWrapper.classList.add("hidden");
+  popup.classList.add("hidden");
+  if (this === newGame) {
+    gameModeList.classList.add("visible");
+  } else if (this === settingsBtn) {
+    settingsWrapper.classList.add("visible-settings");
+  } else if (this === scoreBtn) {
+    scoreTable.classList.add("visible-score");
+    console.log(scoreBtn);
+  }
+};
+
+function startGame() {
+  const newGame = document.querySelector(".new-game");
+  const startWrapper = document.querySelector(".start-wrapper");
   const loadGame = document.querySelector(".load-game");
   const popup = document.querySelector(".popup");
   const gameModeList = document.querySelector(".game-mode");
   const gameModes = document.querySelectorAll(".mode");
   const puzzleBoard = document.querySelector(".puzzle-board");
+  const settingsWrapper = document.querySelector(".settings-wrapper");
+  const scoreTable = document.querySelector(".score-table");
 
   let loadedDataCodes = window.localStorage.getItem("currSeq");
   const start = function () {
@@ -622,9 +864,8 @@ const startGame = () => {
       createTimer(0);
       })
   })
-
+ 
   */
-
     if (this === loadGame) {
       loadedDataCodes = loadedDataCodes.split(",");
       createElements(
@@ -639,7 +880,9 @@ const startGame = () => {
       createTimer(Number(window.localStorage.getItem("time")));
     }
 
-    startScreen.remove();
+    startWrapper.remove();
+    settingsWrapper.remove();
+    scoreTable.remove();
     popup.remove();
     gameModeList.remove();
 
@@ -649,7 +892,8 @@ const startGame = () => {
 
     onClickTranslate();
     reloadGame();
-    saveGame();
+    const save = document.querySelector(".save");
+    save.addEventListener("click", saveGame);
 
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
@@ -657,36 +901,32 @@ const startGame = () => {
       cell.addEventListener("click", win);
     });
     window.addEventListener("dragend", getNearest);
-    window.addEventListener("keydown", goToMenu);
   };
 
-  newGame.addEventListener("click", function () {
-    startScreen.classList.add("hidden");
-    popup.classList.add("hidden");
-    gameModeList.classList.add("visible");
+  newGame.addEventListener("click", closeStartMenu);
 
-    gameModes.forEach((gameMode) => {
-      gameMode.addEventListener("click", function () {
-        window.localStorage.setItem("time", 0);
-        createElements(
-          createArray(Number(gameMode.dataset.mode)).sort(
-            () => Math.random() - 0.5
-          ),
-          Math.sqrt(Number(gameMode.dataset.mode))
-        );
-        window.localStorage.setItem("cells", gameMode.dataset.mode);
-        createTimer(0);
-        start();
-      });
+  gameModes.forEach((gameMode) => {
+    gameMode.addEventListener("click", function () {
+      window.localStorage.setItem("time", 0);
+      createElements(
+        createArray(Number(gameMode.dataset.mode)).sort(
+          () => Math.random() - 0.5
+        ),
+        Math.sqrt(Number(gameMode.dataset.mode))
+      );
+      window.localStorage.setItem("cells", gameMode.dataset.mode);
+      createTimer(0);
+      start();
     });
   });
+
   if (
     window.localStorage.getItem("time") &&
     window.localStorage.getItem("time") != 0
   ) {
     loadGame.addEventListener("click", start);
   }
-};
+}
 
 //
 
@@ -707,6 +947,6 @@ cells.forEach((cell) => {
 });
 
 */
-
 createStartScreen();
 startGame();
+window.addEventListener("keydown", goToMenu);
