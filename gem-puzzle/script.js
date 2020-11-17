@@ -11,16 +11,25 @@ function createElements(seq, columns) {
   let timer = document.createElement("div");
   let counter = document.createElement("div");
   let save = document.createElement("div");
+
   let reload = document.createElement("div");
   let gameInfo = document.createElement("div");
   let puzzleBoard = document.createElement("div");
   let wrapper = document.createElement("div");
   let controlPanel = document.createElement("div");
+  const overlay = document.createElement("div");
+  const winPopup = document.createElement("div");
+  const winPopupTitle = document.createElement("p");
+  const winPopupText = document.createElement("p");
   const cellAudio = document.createElement("audio");
   const dragAudio = document.createElement("audio");
+  const winAudio = document.createElement("audio");
   let cell = null;
   let container = null;
   puzzleBoard.classList.add("puzzle-board");
+  overlay.classList.add("overlay");
+  winPopup.classList.add("win-popup");
+  winPopupText.classList.add("win-text");
   wrapper.classList.add("wrapper");
   gameInfo.classList.add("game-info");
   counter.classList.add("counter", "info-item");
@@ -30,18 +39,20 @@ function createElements(seq, columns) {
   reload.classList.add("reload", "btn");
   cellAudio.classList.add("cell-audio");
   dragAudio.classList.add("drag-audio");
-  cellAudio.setAttribute(
-    "src",
-    "looperman-l-3210323-0229772-more-8-bit-shit (mp3cut.net).wav"
-  );
+  winAudio.classList.add("win-audio");
+  cellAudio.setAttribute("src", "zeldaInt.flac");
   dragAudio.setAttribute(
     "src",
     "looperman-l-1668761-0230739-pyrex-type-loop-flip (mp3cut.net).wav"
   );
+  winAudio.setAttribute("src", "zelda.flac");
 
   timer.textContent = "00:00";
   save.textContent = "save";
   reload.textContent = "reload";
+  winPopupTitle.textContent = "congratulations!";
+  winPopupText.textContent =
+    "You solved it in 15 moves and 10 minutes. Great job!";
   seq.forEach((code) => {
     cell = document.createElement("div");
     container = document.createElement("div");
@@ -66,22 +77,26 @@ function createElements(seq, columns) {
   controlPanel.append(reload);
   wrapper.append(cellAudio);
   wrapper.append(dragAudio);
+  wrapper.append(winAudio);
+  wrapper.append(winPopup);
+  wrapper.append(overlay);
+  winPopup.append(winPopupTitle);
+  winPopup.append(winPopupText);
 
   puzzleBoard.style.gridTemplateColumns = `repeat(${columns}, min-content)`;
 
-  window.addEventListener('resize', function () {
-    let wrapper = document.querySelector(".wrapper")
+  window.addEventListener("resize", function () {
+    let wrapper = document.querySelector(".wrapper");
     if (wrapper) {
       getOffset();
     }
   });
-  window.addEventListener('resize', function () {
-    let wrapper = document.querySelector('.wrapper')
+  window.addEventListener("resize", function () {
+    let wrapper = document.querySelector(".wrapper");
     if (wrapper) {
       getNearest();
     }
   });
-  
 }
 
 function dragNDrop() {
@@ -227,6 +242,11 @@ function win() {
     let cells = document.querySelectorAll(".cell");
     let currentArr = [];
     let winArr = createArray(Number(window.localStorage.getItem("cells")));
+    const themeAudio = document.querySelector(".theme-audio");
+    const winAudio = document.querySelector(".win-audio");
+    const overlay = document.querySelector(".overlay");
+    const winPopup = document.querySelector(".win-popup");
+    const winPopupText = document.querySelector(".win-text");
     cells.forEach((cell) => {
       currentArr.push(cell.dataset.code);
     });
@@ -236,6 +256,27 @@ function win() {
       if (!window.localStorage.getItem("scoreRecord")) {
         window.localStorage.setItem("scoreRecord", JSON.stringify([]));
       }
+
+      let result;
+
+      if (
+        Math.round(
+          500 * Number(window.localStorage.getItem("cells")) -
+            (Number(window.localStorage.getItem("counter")) +
+              Number(window.localStorage.getItem("pastTime"))) /
+              100
+        ) > 0
+      ) {
+        result = Math.round(
+          500 * Number(window.localStorage.getItem("cells")) -
+            (Number(window.localStorage.getItem("counter")) +
+              Number(window.localStorage.getItem("pastTime"))) /
+              100
+        );
+      } else {
+        result = 1;
+      }
+
       let scoreRecord = JSON.parse(window.localStorage.getItem("scoreRecord"));
       scoreRecord.push({
         cells: `${Math.sqrt(
@@ -243,12 +284,7 @@ function win() {
         )}x${Math.sqrt(Number(window.localStorage.getItem("cells")))}`,
         moves: window.localStorage.getItem("counter"),
         time: window.localStorage.getItem("outerTime"),
-        totalScore: Math.round(
-          500 * Number(window.localStorage.getItem("cells")) -
-            (Number(window.localStorage.getItem("counter")) +
-              Number(window.localStorage.getItem("pastTime"))) /
-              100
-        ),
+        totalScore: result,
       });
 
       if (scoreRecord.length > 1 && scoreRecord.length <= 10) {
@@ -260,11 +296,27 @@ function win() {
       }
 
       window.localStorage.setItem("scoreRecord", JSON.stringify(scoreRecord));
-      window.localStorage.setItem("time", 0);
-      alert(window.localStorage.getItem("scoreRecord"));
-      document.location.reload();
+      // window.localStorage.setItem("time", 0);
+
+      if (window.localStorage.getItem("sound") == "yes") {
+        console.log(winAudio);
+        themeAudio.pause();
+        winAudio.play();
+      }
+
+      winPopupText.textContent = `You solved it in ${window.localStorage.getItem(
+        "counter"
+      )} moves and ${window.localStorage.getItem(
+        "outerTime"
+      )} minutes. Great job!`;
+      winPopup.classList.add("visible-win-popup");
+      overlay.classList.add("visible");
+
+      setTimeout(() => {
+        document.location.reload();
+      }, 5300);
     }
-  }, 500);
+  }, 900);
 }
 
 function insertRecords() {
@@ -309,19 +361,15 @@ function getOffset() {
   cellOffset =
     Number(window.getComputedStyle(container).width.match(/[0-9]+/g)[0]) +
     Number(window.getComputedStyle(container).margin.match(/[0-9]+/g)[0]) * 2;
-return cellOffset
+  return cellOffset;
 }
-
-
 
 function getNearest() {
   const emptyContainer = document.querySelector(".empty");
   const containers = document.querySelectorAll(".container");
   let cellOffset = getOffset();
 
-  
-
-console.log(cellOffset)
+  console.log(cellOffset);
   containers.forEach((container) => {
     // поиск горизонтальных ячеек поблизости
     if (
@@ -426,7 +474,6 @@ function onClickTranslate() {
         }
 
         let cellOffset = getOffset();
-
 
         emptyContainer = document.querySelector(".empty");
         emptyCell.remove();
@@ -603,6 +650,19 @@ function saveGame() {
   window.localStorage.setItem("outerTime", timer.innerHTML);
 }
 
+function hideReturnBtn() {
+  const returnBtn = document.querySelector(".return");
+  const startWrapper = document.querySelector(".start-wrapper");
+  const wrapper = document.querySelector('.wrapper');
+
+  if (startWrapper && !startWrapper.classList.contains("hidden")) {
+    returnBtn.classList.add("hidden");
+  } else {
+    returnBtn.classList.remove("hidden");
+  }
+}
+
+
 function createStartScreen() {
   const startGame = document.createElement("div");
   const startWrapper = document.createElement("div");
@@ -611,6 +671,7 @@ function createStartScreen() {
   const settingsBtn = document.createElement("div");
   const scoreBtn = document.createElement("div");
   const settingsWrapper = document.createElement("div");
+  const returnBtn = document.createElement("div");
   const scoreTable = document.createElement("div");
   const scorePosition = document.createElement("div");
   const cellsCol = document.createElement("div");
@@ -642,6 +703,7 @@ function createStartScreen() {
   settingsBtn.classList.add("settings-button", "btn");
   scoreBtn.classList.add("score-button", "btn");
   popup.classList.add("popup");
+  returnBtn.classList.add("return", "btn");
   gameModeList.classList.add("game-mode");
   easy.classList.add("mode", "easy", "btn");
   normal.classList.add("mode", "normal", "btn");
@@ -671,16 +733,14 @@ function createStartScreen() {
   hard.dataset.mode = 36;
   insane.dataset.mode = 49;
   nightmare.dataset.mode = 64;
-  audio.setAttribute(
-    "src",
-    "Electric_Youth_-_Where_Did_You_Go_(ru.muzikavsem.org).mp3"
-  );
+  audio.setAttribute("src", "theme.mp3");
 
   newGame.innerHTML = "new<br/> game";
   loadGame.innerHTML = "load<br/> game";
   settingsBtn.textContent = "settings";
   scoreBtn.textContent = "top score";
   easy.textContent = "easy";
+  returnBtn.textContent = "main menu";
   normal.textContent = "normal";
   medium.textContent = "medium";
   hard.textContent = "hard";
@@ -775,6 +835,10 @@ function createStartScreen() {
     `${cellsValue.innerHTML}` || "numbers"
   );
 
+  if (!startWrapper || !startWrapper.classList.contains("hidden")) {
+    returnBtn.classList.add("hidden");
+  }
+
   document.body.prepend(startWrapper);
   startWrapper.append(startGame);
   startGame.append(newGame);
@@ -800,6 +864,7 @@ function createStartScreen() {
   settingsValues.appendChild(musicValue);
   settingsValues.appendChild(cellsValue);
   document.body.append(scoreTable);
+  document.body.append(returnBtn);
   scoreTable.appendChild(scorePosition);
   scoreTable.appendChild(cellsCol);
   scoreTable.appendChild(movesCol);
@@ -817,10 +882,12 @@ const goToMenu = function (e) {
   const popup = document.querySelector(".popup");
   const settingsWrapper = document.querySelector(".settings-wrapper");
   const scoreTable = document.querySelector(".score-table");
-  if (e.code == "Escape") {
+  const returnBtn = document.querySelector(".return");
+  if (e.code == "Escape" || e.target === returnBtn) {
     if (wrapper) {
       wrapper.remove();
       audio.remove();
+      returnBtn.remove();
       createStartScreen();
       startGame();
       console.log(wrapper);
@@ -921,7 +988,6 @@ function startGame() {
     const save = document.querySelector(".save");
     save.addEventListener("click", saveGame);
 
-
     let cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => {
       cell.addEventListener("transitionend", getNearest);
@@ -977,3 +1043,6 @@ cells.forEach((cell) => {
 createStartScreen();
 startGame();
 window.addEventListener("keydown", goToMenu);
+window.addEventListener("click", goToMenu);
+window.addEventListener("click", hideReturnBtn);
+window.addEventListener("keydown", hideReturnBtn);
