@@ -366,8 +366,8 @@ function onClickTranslate() {
         cell.addEventListener("click", function() {
             if (
                 cell.getAttribute("draggable") == "true" &&
-                !cell.classList.contains("empty-temporal") &&
-                !cell.classList.contains("empty")
+                !cell.closest('.container').classList.contains("empty-temporal") &&
+                !cell.closest(".container").classList.contains("empty")
             ) {
                 if (window.localStorage.getItem("sound") === "yes") {
                     cellAudio.play();
