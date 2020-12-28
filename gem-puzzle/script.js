@@ -163,7 +163,6 @@ function dragNDrop() {
                     dragAudio.play();
                     dragAudio.currentTime = 0;
                 }
-                console.log(JSON.parse(window.localStorage.getItem("rec")));
                 const dragging = document.querySelector(".dragging");
                 this.append(dragging);
                 this.classList.remove("hovered");
@@ -234,7 +233,6 @@ function checkCurrentSequence() {
             window.localStorage.setItem("scoreRecord", JSON.stringify(scoreRecord));
 
             if (window.localStorage.getItem("sound") == "yes") {
-                console.log(winAudio);
                 themeAudio.pause();
                 winAudio.play();
             }
@@ -304,7 +302,6 @@ function getNearest() {
     const containers = document.querySelectorAll(".container");
     let cellOffset = getOffset();
 
-    console.log(cellOffset);
     containers.forEach((container) => {
         if (
             (container.getBoundingClientRect().x - cellOffset ==
@@ -784,7 +781,6 @@ const goToMenu = function(e) {
             returnBtn.remove();
             createStartScreen();
             startGame();
-            console.log(wrapper);
         }
         if (gameModeList && gameModeList.classList.contains("visible")) {
             gameModeList.classList.remove("visible");
@@ -826,7 +822,6 @@ const closeStartMenu = function() {
         settingsWrapper.classList.add("visible-settings");
     } else if (this === scoreBtn) {
         scoreTable.classList.add("visible-score");
-        console.log(scoreBtn);
     }
 };
 
